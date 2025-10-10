@@ -169,7 +169,6 @@ export const useDealDetail = (
   options?: QueryHookOptions<{ dealDetail: IDeal }>,
 ) => {
   const [activeDealId] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
 
   const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
     GET_DEAL_DETAIL,
@@ -177,9 +176,9 @@ export const useDealDetail = (
       ...options,
       variables: {
         ...options?.variables,
-        _id: salesItemId || activeDealId,
+        _id: activeDealId,
       },
-      skip: !activeDealId && !salesItemId,
+      skip: !activeDealId,
     },
   );
 
@@ -188,7 +187,6 @@ export const useDealDetail = (
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
   const [_id] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
 
   const [editDeals, { loading, error }] = useMutation(EDIT_DEALS, {
     ...options,
@@ -196,15 +194,14 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
       ...options?.variables,
       _id,
     },
-    refetchQueries:
-      salesItemId || _id
-        ? [
-            {
-              query: GET_DEAL_DETAIL,
-              variables: { ...options?.variables, _id: salesItemId || _id },
-            },
-          ]
-        : [],
+    refetchQueries: _id
+      ? [
+          {
+            query: GET_DEAL_DETAIL,
+            variables: { ...options?.variables, _id },
+          },
+        ]
+      : [],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
       toast({

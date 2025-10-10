@@ -166,7 +166,7 @@ export const DealsBoardCards = ({ column }: { column: BoardColumnProps }) => {
   const [dealCountByBoard, setDealCountByBoard] = useAtom(dealCountByBoardAtom);
   const [searchParams] = useSearchParams();
 
-  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+  const ignoredKeys = ['boardId', 'pipelineId'];
 
   const queryVariables: Record<string, any> = {};
 
