@@ -195,6 +195,7 @@ const SelectAssigneeDealRoot = ({
   const [open, setOpen] = useState(false);
 
   const handleValueChange = (value: string | string[] | null) => {
+    console.log('vvv', value);
     if (id) {
       editDeals({
         variables: {

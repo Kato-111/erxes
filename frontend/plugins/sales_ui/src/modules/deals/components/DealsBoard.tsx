@@ -2,6 +2,8 @@ import {
   Board,
   BoardColumnProps,
   BoardItemProps,
+} from '@/deals/components/common/board';
+import {
   Button,
   EnumCursorDirection,
   Skeleton,
@@ -13,7 +15,7 @@ import {
   dealCreateDefaultValuesState,
   dealCreateSheetState,
 } from '@/deals/states/dealCreateSheetState';
-import { useDeals, useDealsChange } from '@/deals/cards/hooks/useDeals';
+import { useDeals, useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
 import { DealsBoardCard } from '@/deals/components/DealsBoardCard';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -31,7 +33,7 @@ export const allDealsMapState = atom<Record<string, IDeal>>({});
 
 export const DealsBoard = () => {
   const allDealsMap = useAtomValue(allDealsMapState);
-  const { changeDeals } = useDealsChange();
+  const { editDeals } = useDealsEdit();
   const [pipelineId] = useQueryState<string>('pipelineId');
 
   const { stages } = useStages({
@@ -58,84 +60,37 @@ export const DealsBoard = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return;
-
+    if (!over) {
+      return;
+    }
     const activeItem = allDealsMap[active.id as string];
     const overItem = allDealsMap[over.id as string];
-
-    if (!activeItem) return;
-
     const overColumn =
       overItem?.stageId ||
       columns.find((col) => col.id === over.id)?.id ||
       columns[0]?.id;
 
-    let aboveItemId: string | null = null;
-
-    setDeals((prev) => {
-      let updated = [...prev];
-
-      // If moved to a different column
-      if (activeItem.stageId !== overColumn) {
-        updated = updated.map((deal) =>
-          deal.id === activeItem._id
-            ? { ...deal, column: overColumn, sort: new Date().toISOString() }
-            : deal,
-        );
-
-        const columnItems = updated
-          .filter((d) => d.column === overColumn && d.id !== activeItem._id)
-          .sort((a, b) =>
-            (a.sort?.toString() ?? '').localeCompare(b.sort?.toString() ?? ''),
-          );
-
-        const overIndex = columnItems.findIndex((c) => c.id === overItem?._id);
-
-        aboveItemId =
-          overIndex === -1
-            ? columnItems[columnItems.length - 1]?.id ?? null
-            : columnItems[overIndex]?.id;
-      } else {
-        const columnItems = updated
-          .filter((d) => d.column === overColumn && d.id !== activeItem._id)
-          .sort((a, b) =>
-            (a.sort?.toString() ?? '').localeCompare(b.sort?.toString() ?? ''),
-          );
-
-        const overIndex = columnItems.findIndex((c) => c.id === overItem?._id);
-        aboveItemId =
-          overIndex === -1
-            ? columnItems[columnItems.length - 1]?.id ?? null
-            : columnItems[overIndex]?.id;
-
-        // Remove active item from old position
-        const fromIndex = updated.findIndex((d) => d.id === activeItem._id);
-        updated.splice(fromIndex, 1);
-
-        // Insert active item in new position
-        const insertIndex =
-          overIndex === -1
-            ? updated.filter((d) => d.column === overColumn).length
-            : updated.findIndex((d) => d.id === columnItems[overIndex].id);
-
-        updated.splice(insertIndex, 0, {
-          id: activeItem._id,
-          column: overColumn,
-          sort: new Date().toISOString(),
-        });
-      }
-
-      return updated;
-    });
-
-    changeDeals({
+    if (activeItem?.stageId === overColumn) {
+      return;
+    }
+    editDeals({
       variables: {
-        itemId: activeItem._id,
-        destinationStageId: overColumn,
-        aboveItemId: aboveItemId ?? undefined,
+        _id: activeItem?._id,
+        stageId: overColumn,
       },
     });
-
+    setDeals((prev) =>
+      prev.map((deal) => {
+        if (deal.id === activeItem?._id) {
+          return {
+            ...deal,
+            column: overColumn,
+            sort: new Date().toISOString(),
+          };
+        }
+        return deal;
+      }),
+    );
     setDealCountByBoard((prev) => ({
       ...prev,
       [activeItem?.stageId]: prev[activeItem?.stageId] - 1 || 0,
