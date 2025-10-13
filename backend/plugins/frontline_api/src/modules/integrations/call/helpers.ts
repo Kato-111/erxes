@@ -8,7 +8,7 @@ import {
 } from '@/integrations/call/utils';
 
 export const createIntegration = async (subdomain: string, data: any) => {
-  const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
+  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const domain = getDomain(subdomain);
 
   const models = await generateModels(subdomain);
@@ -66,10 +66,12 @@ export const createIntegration = async (subdomain: string, data: any) => {
         domain,
         erxesApiId: integration._id,
         subdomain,
+        callQueues: integration.queues,
       };
 
       if (integration.srcTrunk) requestBody.srcTrunk = integration.srcTrunk;
       if (integration.dstTrunk) requestBody.dstTrunk = integration.dstTrunk;
+
       await fetch(`${ENDPOINT_URL}/register-endpoint`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -131,7 +133,7 @@ export const updateIntegration = async ({
     await updateIntegrationQueueNames(subdomain, integrationId, updatedQueues);
 
     // Notify external endpoint if necessary
-    const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
+    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
     const domain = getDomain(subdomain);
     if (ENDPOINT_URL) {
       try {
@@ -147,7 +149,9 @@ export const updateIntegration = async ({
         if (details.dstTrunk) {
           requestBody.dstTrunk = details.dstTrunk;
         }
-
+        if (updatedQueues) {
+          requestBody.callQueues = updatedQueues;
+        }
         await fetch(`${ENDPOINT_URL}/update-endpoint`, {
           method: 'POST',
           body: JSON.stringify(requestBody),
@@ -172,6 +176,7 @@ export const updateIntegration = async ({
     return { status: 'success' };
   } catch (error) {
     console.error('Error in consumeRPCQueue:', error.message);
+    console.log(error?.keyPattern, 'key pattern');
     return {
       status: 'error',
       errorMessage: error?.keyPattern?.wsServer
@@ -209,8 +214,7 @@ export const removeIntegration = async ({
     await models.CallIntegrations.deleteOne({ _id });
   }
 
-  const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
-  const domain = getDomain(subdomain);
+  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
 
   if (ENDPOINT_URL) {
     // send domain to core endpoints
@@ -219,7 +223,6 @@ export const removeIntegration = async ({
         method: 'POST',
         body: JSON.stringify({
           erxesApiId: integration._id,
-          domain,
         }),
         headers: {
           'Content-Type': 'application/json',

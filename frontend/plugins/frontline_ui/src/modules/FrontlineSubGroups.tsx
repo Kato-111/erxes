@@ -21,6 +21,11 @@ export const FrontlineSubGroups = () => {
       <NavigationMenuGroup name="Integration types">
         <ChooseIntegrationTypeContent />
       </NavigationMenuGroup>
+      <Sidebar.Group>
+        <Sidebar.GroupLabel asChild>
+          <ChooseChannel />
+        </Sidebar.GroupLabel>
+      </Sidebar.Group>
     </>
   );
 };

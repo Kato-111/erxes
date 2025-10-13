@@ -8,7 +8,6 @@ export const EM_INTEGRATION_DETAIL_QUERY = gql`
       languageCode
       channel {
         _id
-        name
       }
       messengerData
       callData {
