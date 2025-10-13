@@ -30,6 +30,7 @@ export const types = `
    _id: String!
     kind: String!
     name: String!
+    brandId: String!
     languageCode: String
     code: String
     formId: String
@@ -44,9 +45,10 @@ export const types = `
     isActive: Boolean
     isConnected: Boolean
     webhookData: JSON
-    channelId: String
 
-    channel: Channel
+    brand: Brand
+    facebookPage: JSON
+    channels: [Channel]
 
 
     healthStatus: JSON
@@ -57,7 +59,6 @@ export const types = `
 
     details: JSON
     callData: CloudflareCallsData
-    facebookPage: JSON
   }
   type IntegrationRespone {
     list: [Integration],
@@ -169,7 +170,8 @@ export const queries = `
     perPage: Int,
     kind: String,
     searchValue: String,
-    channelId: String!,
+    channelId: String,
+    brandId: String,
     tag: String,
     status: String,
     formLoadType: String,
@@ -181,12 +183,11 @@ export const queries = `
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
-  integrationsTotalCount(kind: String, tag: String, channelId: String!, status: String, formLoadType: String): integrationsTotalCount
+  integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
 `;
 
 export const mutations = `
   integrationsCreateMessengerOnboarding(
-    channelId: String!,
     brandName: String!,
     languageCode: String
     color: String
@@ -196,7 +197,7 @@ export const mutations = `
 
   integrationsEditMessengerOnboarding(
     _id: String!,
-    channelId: String!,
+    brandId: String!,
     brandName: String!,
     languageCode: String
     color: String
@@ -204,38 +205,39 @@ export const mutations = `
   ): Integration
 
   integrationsCreateMessengerIntegration(
-    channelId: String!,
     name: String!,
+    brandId: String!,
     languageCode: String
+    channelIds: [String]
     ): Integration
 
   integrationsEditMessengerIntegration(
     _id: String!,
-    channelId: String!,
     name: String!,
+    brandId: String!,
     languageCode: String
+    channelIds: [String]
   ): Integration
 
   integrationsSaveMessengerAppearanceData(
     _id: String!,
-    channelId: String!,
     uiOptions: MessengerUiOptions): Integration
 
   integrationsSaveMessengerConfigs(
     _id: String!,
-    channelId: String!,
     messengerData: IntegrationMessengerData,
     callData: IntegrationCallData
     ): Integration
 
   integrationsCreateExternalIntegration(
     kind: String!,
-    channelId: String!,
     name: String!,
+    brandId: String!,
     accountId: String,
+    channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, channelId: String, details: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON
@@ -247,13 +249,15 @@ export const mutations = `
 
   integrationsCreateLeadIntegration(
     name: String!,
-    channelId: String
+    brandId: String!,
+    channelIds: [String]
     ): Integration
 
   integrationsEditLeadIntegration(
     _id: String!
     name: String!,
-    channelId: String
+    brandId: String!,
+    channelIds: [String]
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
 `;
