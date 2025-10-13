@@ -22,7 +22,6 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import './meta/automations';
 import './segments';
-import { json } from 'stream/consumers';
 
 dotenv.config();
 
@@ -67,8 +66,6 @@ const corsOptions = {
       .map((c) => c && RegExp(c)),
   ],
 };
-
-console.log('allowedOrigins', JSON.stringify(allowedOrigins, null, 2));
 
 app.use(cors(corsOptions));
 
