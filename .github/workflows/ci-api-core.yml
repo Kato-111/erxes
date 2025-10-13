@@ -21,14 +21,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
 
       - name: Install dependencies
         run: pnpm install
@@ -36,8 +35,8 @@ jobs:
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
-      - name: Build core-api
-        run: pnpm nx build core-api
+      - name: Build core_api
+        run: pnpm nx build core_api
 
       # Buildx setup
       - name: Set up QEMU
