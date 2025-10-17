@@ -1,4 +1,5 @@
 import { Task } from './modules/Task';
+import { CustomerTasks } from './components/CustomerTasks';
 
 export const RelationWidgets = ({
   module,
@@ -10,8 +11,7 @@ export const RelationWidgets = ({
   contentType: string;
 }) => {
   if (contentType === 'core:customer') {
-    const conversation = { customerId: contentId };
-    return <div>conversation</div>;
+    return <CustomerTasks />;
   }
   if (module === 'tasks') {
     return <Task contentId={contentId} contentType={contentType} />;

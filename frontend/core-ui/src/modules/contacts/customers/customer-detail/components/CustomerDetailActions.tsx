@@ -34,16 +34,16 @@ export const CustomerDetailActions = () => {
 
   return (
     <>
-      <Resizable.Handle />
-      <Resizable.Panel
-        minSize={activeTab ? 30 : 0}
-        maxSize={activeTab ? 60 : 0}
+      <SideMenu
+        orientation="vertical"
+        value={activeTab ?? ''}
+        onValueChange={(value) => setActiveTab(value)}
+        className={cn('h-full')}
       >
-        <SideMenu
-          orientation="vertical"
-          value={activeTab ?? ''}
-          onValueChange={(value) => setActiveTab(value)}
-          className={cn('h-full')}
+        <Resizable.Handle />
+        <Resizable.Panel
+          minSize={activeTab ? 30 : 0}
+          maxSize={activeTab ? 60 : 0}
         >
           {/* <ActionTabsContent
             value={actionTabs.activity.code}
@@ -104,25 +104,18 @@ export const CustomerDetailActions = () => {
               </Resizable.Panel>
             </Resizable.PanelGroup>
           </ActionTabsContent> */}
-        </SideMenu>
-      </Resizable.Panel>
-      <CustomerDetailActionsTrigger />
+        </Resizable.Panel>
+        <CustomerDetailActionsTrigger />
+      </SideMenu>
     </>
   );
 };
 
 export const CustomerDetailActionsTrigger = () => {
-  const [activeTab, setActiveTab] = useAtom(customerDetailActiveActionTabAtom);
   const widgetsModules = useRelationWidgetsModules();
 
   return (
     <div className="flex flex-none overflow-hidden">
-      <SideMenu
-        orientation="vertical"
-        value={activeTab ?? ''}
-        onValueChange={(value) => setActiveTab(value)}
-        className="h-full"
-      >
         <SideMenu.Sidebar className="border-l-0">
           {widgetsModules.map((item) => (
             <SideMenu.Trigger
@@ -133,7 +126,6 @@ export const CustomerDetailActionsTrigger = () => {
             />
           ))}
         </SideMenu.Sidebar>
-      </SideMenu>
     </div>
   );
 };
